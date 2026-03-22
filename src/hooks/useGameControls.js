@@ -1,15 +1,25 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { GAME_STATES } from '../config.js';
 
-export function useGameControls(gameLoopRef, gameState) {
+export function useGameControls(gameLoopRef, gameState, onNextLevel) {
   const touchStartRef = useRef(null);
 
   const handleKeyDown = useCallback((e) => {
     if (!gameLoopRef.current) return;
     const gl = gameLoopRef.current;
 
+    // Pause / resume
     if (e.code === 'Escape' || e.code === 'KeyP') {
-      if (gameState === 'PLAYING' || gameState === 'PAUSED') {
+      if (gameState === GAME_STATES.PLAYING || gameState === GAME_STATES.PAUSED) {
         gl.pauseGame();
+      }
+      return;
+    }
+
+    // Enter / Space advances Level Complete screen
+    if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+      if (gameState === GAME_STATES.LEVEL_COMPLETE && onNextLevel) {
+        onNextLevel();
       }
       return;
     }
@@ -18,14 +28,14 @@ export function useGameControls(gameLoopRef, gameState) {
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
       e.preventDefault();
     }
-  }, [gameLoopRef, gameState]);
+  }, [gameLoopRef, gameState, onNextLevel]);
 
   const handleKeyUp = useCallback((e) => {
     if (!gameLoopRef.current) return;
     gameLoopRef.current.setKey(e.code, false);
   }, [gameLoopRef]);
 
-  // Touch controls
+  // Touch swipe controls
   const handleTouchStart = useCallback((e) => {
     if (!gameLoopRef.current) return;
     const touch = e.touches[0];
@@ -57,15 +67,14 @@ export function useGameControls(gameLoopRef, gameState) {
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchend', handleTouchEnd);
-
+    window.addEventListener('keyup',   handleKeyUp);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend',   handleTouchEnd);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('keyup',   handleKeyUp);
       window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchend',   handleTouchEnd);
     };
   }, [handleKeyDown, handleKeyUp, handleTouchStart, handleTouchEnd]);
 }
