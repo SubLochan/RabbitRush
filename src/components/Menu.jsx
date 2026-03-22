@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { GAME_STATES, LEVELS } from '../config.js';
+import { CryingRabbit } from './CryingRabbit.jsx';
 
 const DIFF_LABEL = (lvl) => lvl <= 5 ? '⭐ Easy–Medium' : lvl <= 7 ? '🔥 Hard' : lvl <= 9 ? '💀 Expert' : '☠️ Extreme';
 
@@ -25,15 +26,52 @@ export function Menu({ state, onStart, onResume, onRestart, score, highScore }) 
 
   if (state === GAME_STATES.GAME_OVER) {
     return (
-      <div style={{ ...overlay, background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(8px)' }}>
-        <div style={cardStyle}>
-          <div style={{ fontSize: 64, marginBottom: 6 }}>💔</div>
-          <div style={titleStyle}>Game Over</div>
-          <div style={scoreDisplay}>Score: <strong>{score.toLocaleString()}</strong></div>
-          {score >= highScore && score > 0 && <div style={{ color: '#FFD700', fontSize: 15, marginBottom: 8 }}>🏆 New High Score!</div>}
-          <div style={{ color: '#777', fontSize: 14, marginBottom: 20 }}>Best: {highScore.toLocaleString()}</div>
-          <Btn onClick={onRestart} color="#F44336">Try Again</Btn>
+      <div style={{ ...overlay, background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(10px)' }}>
+        <div style={{
+          ...cardStyle,
+          border: '1px solid rgba(244,67,54,0.3)',
+          boxShadow: '0 32px 100px rgba(0,0,0,0.9), 0 0 60px rgba(244,67,54,0.15)',
+        }}>
+          {/* Animated crying rabbit illustration */}
+          <div style={{ marginBottom: 6, animation: 'gentleShake 0.5s ease-in-out 3' }}>
+            <CryingRabbit size={160} />
+          </div>
+
+          <div style={{
+            fontWeight: 900, fontSize: 44, color: '#EF5350',
+            textShadow: '0 3px 0 #b71c1c, 0 0 30px rgba(244,67,54,0.4)',
+            marginBottom: 8, letterSpacing: 0.5,
+          }}>Game Over</div>
+
+          <div style={{
+            fontSize: 15, color: '#888', fontStyle: 'italic',
+            marginBottom: 16, lineHeight: 1.5,
+          }}>
+            Poor bunny… the foxes got you! 🦊
+          </div>
+
+          <div style={scoreDisplay}>
+            Score: <strong style={{ color: '#FFD700' }}>{score.toLocaleString()}</strong>
+          </div>
+          {score >= highScore && score > 0 && (
+            <div style={{ color: '#FFD700', fontSize: 15, marginBottom: 8 }}>🏆 New High Score!</div>
+          )}
+          <div style={{ color: '#555', fontSize: 14, marginBottom: 24 }}>
+            Best: {highScore.toLocaleString()}
+          </div>
+
+          <Btn onClick={onRestart} color="#F44336">🐰 Try Again</Btn>
         </div>
+
+        <style>{\`
+          @keyframes gentleShake {
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-6px); }
+            40%      { transform: translateX(6px); }
+            60%      { transform: translateX(-4px); }
+            80%      { transform: translateX(4px); }
+          }
+        \`}</style>
       </div>
     );
   }
